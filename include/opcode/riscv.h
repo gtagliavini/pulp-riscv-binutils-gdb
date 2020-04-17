@@ -160,6 +160,15 @@ static const char * const riscv_pred_succ[16] =
 #define ENCODE_I5_1_TYPE_IMM(x) \
   (RV_X(x, 0, 5) << 20)
 
+#define ENCODE_RVC_PUSH_POP_IMM(x) ((RV_X(x, 0, 5) << 8))
+#define ENCODE_RVC_PUSH_POP_RCOUNT(x) ((RV_X(x, 0, 4) << 4))
+#define OP_MASK_PUSH_POP_REGISTER 0xf
+#define OP_SH_PUSH_POP_REGISTER 0x4
+#define OP_MASK_PUSH_POP_OPC 0x3
+#define OP_SH_PUSH_POP_OPC 0x2
+#define OP_MASK_PUSH_POP_SPIMM 0x1f
+#define OP_SH_PUSH_POP_SPIMM 0x8
+
 #define VALID_ITYPE_IMM(x) (EXTRACT_ITYPE_IMM(ENCODE_ITYPE_IMM(x)) == (x))
 #define VALID_STYPE_IMM(x) (EXTRACT_STYPE_IMM(ENCODE_STYPE_IMM(x)) == (x))
 #define VALID_SBTYPE_IMM(x) (EXTRACT_SBTYPE_IMM(ENCODE_SBTYPE_IMM(x)) == (x))
@@ -371,6 +380,46 @@ enum
   M_NUM_MACROS
 };
 
+/* str form for rcount in push and pop instruction.
+   16---total 16 cases; 30---the max length of str  */
+static const char push_pop_rcount_gpr_abi[16][30] =
+{
+  "reserved",
+  "{ra}",
+  "{ra,s0}",
+  "{ra,s0-s1}",
+  "{ra,s0-s2}",
+  "{ra,s0-s3}",
+  "{ra,s0-s4}",
+  "{ra,s0-s5}",
+  "{ra,s0-s6}",
+  "{ra,s0-s7}",
+  "{ra,s0-s8}",
+  "{ra,s0-s9}",
+  "{ra,s0-s10}",
+  "{ra,s0-s11}",
+  "{ra,s0-s11,a0}",
+  "{ra,s0-s11,a0-a1}"};
+
+
+static const char push_pop_rcount_gpr[16][30] =
+{
+  "reserved",
+  "{x1}",
+  "{x1,x8}",
+  "{x1,x8-x9}",
+  "{x1,x8-x9,x18}",
+  "{x1,x8-x9,x18-x19}",
+  "{x1,x8-x9,x18-x20}",
+  "{x1,x8-x9,x18-x21}",
+  "{x1,x8-x9,x18-x22}",
+  "{x1,x8-x9,x18-x23}",
+  "{x1,x8-x9,x18-x24}",
+  "{x1,x8-x9,x18-x25}",
+  "{x1,x8-x9,x18-x26}",
+  "{x1,x8-x9,x18-x27}",
+  "{x1,x8-x9,x18-x27,x10}",
+  "{x1,x8-x9,x18-x27,x10-x11}"};
 
 extern const char * const riscv_gpr_names_numeric[NGPR];
 extern const char * const riscv_gpr_names_abi[NGPR];

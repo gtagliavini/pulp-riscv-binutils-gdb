@@ -49,6 +49,8 @@ static const char * const *riscv_fpr_names;
 /* Other options.  */
 static int no_aliases;	/* If set disassemble as most general inst.  */
 
+static int push_pop_use_gpr_abi = 1;
+
 struct riscv_subset
 {
   const char *name;
@@ -173,6 +175,7 @@ parse_riscv_dis_option (const char *option)
     {
       riscv_gpr_names = riscv_gpr_names_numeric;
       riscv_fpr_names = riscv_fpr_names_numeric;
+      push_pop_use_gpr_abi = 0;
     } else if ((where = strstr(option, "march="))&&(where==option)) {
         char *comma;
         where = option+6;
@@ -245,6 +248,33 @@ maybe_print_address (struct riscv_private_data *pd, int base_reg, int offset)
     pd->print_addr = offset;
 }
 
+static int
+print_push_pop_register (struct disassemble_info *info, insn_t l)
+{
+  fprintf_ftype print = info->fprintf_func;
+  int rcount = EXTRACT_OPERAND (PUSH_POP_REGISTER, l);
+  if (push_pop_use_gpr_abi)
+    print (info->stream, "%s", push_pop_rcount_gpr_abi[rcount]);
+  else
+    print (info->stream, "%s", push_pop_rcount_gpr[rcount]);
+  return rcount;
+}
+static void
+print_push_pop_spimm (struct disassemble_info *info, insn_t l,
+			 int push_pop_rcount)
+{
+  fprintf_ftype print = info->fprintf_func;
+  int opc = EXTRACT_OPERAND (PUSH_POP_OPC, l);
+  int sp16imm = EXTRACT_OPERAND (PUSH_POP_SPIMM, l);
+  /* calculate the spimm by push_pop_rcount and sp16imm.  */
+  int spimm = 16 * ((push_pop_rcount + 3) / 4 + sp16imm);
+  /* opc 2--push 0--pop 1--popret.  */
+  if (opc == 2)
+    print (info->stream, "-%d", spimm);
+  else if (opc == 0 || opc == 1)
+    print (info->stream, "%d", spimm);
+}
+
 /* Print insn arguments for 32/64-bit code.  */
 
 static void
@@ -254,6 +284,7 @@ print_insn_args (const char *d, insn_t l, bfd_vma pc, disassemble_info *info)
   int rs1 = (l >> OP_SH_RS1) & OP_MASK_RS1;
   int rd = (l >> OP_SH_RD) & OP_MASK_RD;
   fprintf_ftype print = info->fprintf_func;
+  int push_pop_rcount = 0;
 
   if (*d != '\0')
     print (info->stream, "\t");
@@ -265,6 +296,12 @@ print_insn_args (const char *d, insn_t l, bfd_vma pc, disassemble_info *info)
 	case 'C': /* RVC */
 	  switch (*++d)
 	    {
+	    case 'P':
+	      push_pop_rcount = print_push_pop_register (info, l);
+	      break;
+	    case 'e':
+	      print_push_pop_spimm (info, l, push_pop_rcount);
+	      break;		    
 	    case 's': /* RS1 x8-x15 */
 	    case 'w': /* RS1 x8-x15 */
 	      print (info->stream, "%s",

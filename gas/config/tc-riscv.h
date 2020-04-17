@@ -121,4 +121,8 @@ extern void pulp_md_end (void);
 /* Adjust debug_line after relaxation.  */
 #define DWARF2_USE_FIXED_ADVANCE_PC 1
 
+int get_push_pop_rcount (char **);
+int search_push_pop_rcount (char *, char const push_pop_rcount_str[][30]);
+int get_push_pop_sp16imm (char **, int, char *);
+
 #endif /* TC_RISCV */

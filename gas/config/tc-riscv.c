@@ -614,6 +614,8 @@ validate_riscv_insn (const struct riscv_opcode *opc)
       case 'C': /* RVC */
 	switch (c = *p++)
 	  {
+	  case 'P': used_bits |= ENCODE_RVC_PUSH_POP_RCOUNT (-1U); break;
+	  case 'e': used_bits |= ENCODE_RVC_PUSH_POP_IMM (-1U); break;
 	  case 'a': used_bits |= ENCODE_RVC_J_IMM (-1U); break;
 	  case 'c': break; /* RS1, constrained to equal sp */
 	  case 'i': used_bits |= ENCODE_RVC_SIMM3(-1U); break;
@@ -719,6 +721,129 @@ validate_riscv_insn (const struct riscv_opcode *opc)
     }
   return TRUE;
 }
+
+int
+search_push_pop_rcount (char *rcount_str, char const push_pop_rcount_str[][30])
+{
+  /* 16: the max length of push_pop_rcount.  */
+  /* 30: the max length of push_pop_rcount_str.  */
+  int push_pop_rcount = 1;
+  for (; push_pop_rcount < 16; push_pop_rcount++)
+    {
+      if (!strcmp (rcount_str, push_pop_rcount_str[push_pop_rcount]))
+	{
+          return push_pop_rcount;
+	}
+    }
+  as_bad (("Improper register list format for push or pop or popret"
+             "(register does not meet the requirements)"));
+  return 0;
+}
+
+
+int
+get_push_pop_rcount (char **s)
+{
+  char *s_save = *s;
+  int n = 0;
+  int push_pop_rcount = 0;
+
+
+  for (; *(*s) != '\0'; ++(*s))
+    {
+      char a = *(*s);
+      n++;
+
+
+      if ( a == '}')
+        {
+          char *rcount_str = (char *) malloc ((n + 1) * sizeof (char));
+	  gas_assert (rcount_str);
+	  gas_assert (0 == strncpy (rcount_str, s_save, n));
+          rcount_str[n] = '\0';
+          (*s)++;
+          if (strchr (rcount_str, 'x') != NULL)
+	    {
+              push_pop_rcount = search_push_pop_rcount (rcount_str, push_pop_rcount_gpr);
+            }
+	  else
+	    {
+              push_pop_rcount = search_push_pop_rcount (rcount_str, push_pop_rcount_gpr_abi);
+	    }
+          free (rcount_str);
+          return push_pop_rcount;
+        }
+    }
+  as_bad (("Improper register list format for push or pop or popret"
+             "(register does not meet the requirements)"));
+  return 0;
+}
+
+
+int
+get_push_pop_sp16imm (char **s, int push_pop_rcount, char *str)
+{
+    char c;
+    int push_pop_sp16imm = 0;
+    int push_pop_spimm = 0;
+
+
+    if ((*(*s) == '\0'))
+      {
+        as_bad (("Improper immidiate number for push or pop or popret"
+             "(immidiate does not meet the requirements)"));
+        return -1;
+      }
+
+
+    if (*(*s) == '-')
+      {
+        if (strcmp (str, "push") != 0)
+          {
+            as_bad (("Improper immidiate number for push or pop or popret"
+             "(immidiate does not meet the requirements)"));
+            return -1;
+          }
+        (*s)++;
+      }
+    else if ((strcmp (str, "pop") != 0) && (strcmp (str, "popret") != 0))
+      {
+        as_bad (("Improper immidiate number for push or pop or popret"
+             "(immidiate does not meet the requirements)"));
+        return -1;
+      }
+
+
+
+
+    for (; *(*s) != '\0'; (*s)++)
+      {
+        c = *(*s);
+        if (c < '0'|| c > '9')
+	  {
+	    break;
+	  }
+	/* Extract values from a string s, so multiply by 10.  */
+        push_pop_spimm *= 10;
+        push_pop_spimm += (int)(c - '0');
+      }
+    /* push_pop_spimm must be a multiple of 16.  */
+    if (push_pop_spimm%16 == 0 && push_pop_spimm != 0)
+      {
+	/* calculate the push_pop_sp16imm by push_pop_spimm.  */
+        push_pop_sp16imm= push_pop_spimm / 16 - (push_pop_rcount + 3) / 4;
+        /* the range of push_pop_sp16imm is [0, 31].  */
+	if (push_pop_sp16imm >= 0 && push_pop_sp16imm <= 31)
+          {  
+	    return push_pop_sp16imm;
+	  }
+      }
+    as_bad (("Improper immidiate number for push or pop or popret"
+             "(immidiate does not meet the requirements)"));
+    return -1;
+}
+
+
 
 struct percent_op_match
 {
@@ -1375,6 +1500,8 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,
   int argnum;
   const struct percent_op_match *p;
   const char *error = "unrecognized opcode";
+  int push_pop_rcount = 0;
+  int push_pop_sp16imm = 0;
 
   /* Parse the name of the instruction.  Terminate the string if whitespace
      is found so that hash_find only sees the name part of the string.  */
@@ -1423,6 +1550,13 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,
 	    case 'C': /* RVC */
 	      switch (*++args)
 		{
+		case 'P':
+		  push_pop_rcount = get_push_pop_rcount (&s);
+		  if (!push_pop_rcount)
+		    break;
+		  ip->insn_opcode
+			|= ENCODE_RVC_PUSH_POP_RCOUNT (push_pop_rcount);
+		  continue;			
 		case 's': /* RS1 x8-x15 */
 		  if (!reg_lookup (&s, RCLASS_GPR, &regno)
 		      || !(regno >= 8 && regno <= 15))
@@ -1510,6 +1644,14 @@ rvc_imm_done:
 		    break;
 		  ip->insn_opcode |= ENCODE_RVC_LD_IMM (imm_expr->X_add_number);
 		  goto rvc_imm_done;
+		case 'e':
+		  push_pop_sp16imm = get_push_pop_sp16imm (&s,
+						push_pop_rcount, str);
+		  if (push_pop_sp16imm < 0)
+		    break;
+		  ip->insn_opcode
+			|= ENCODE_RVC_PUSH_POP_IMM (push_pop_sp16imm);
+		  continue;		  
 		case 'm':
 		  if (my_getSmallExpression (imm_expr, imm_reloc, s, p)
 		      || imm_expr->X_op != O_constant

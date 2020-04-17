@@ -597,6 +597,9 @@ const struct riscv_opcode riscv_opcodes[] =
 {"c.flw",     "32C", "CD,Ck(Cs)",  MATCH_C_FLW, MASK_C_FLW, match_opcode, 0 },
 {"c.fswsp",   "32C", "CT,CM(Cc)",  MATCH_C_FSWSP, MASK_C_FSWSP, match_opcode, 0 },
 {"c.fsw",     "32C", "CD,Ck(Cs)",  MATCH_C_FSW, MASK_C_FSW, match_opcode, 0 },
+{"push",      "32C", "CP,Ce",  MATCH_C_PUSH, MASK_C_PUSH, match_opcode, 0 },
+{"pop",       "32C", "CP,Ce",  MATCH_C_POP, MASK_C_POP, match_opcode, 0 },
+{"popret",    "32C", "CP,Ce",  MATCH_C_POPRET, MASK_C_POPRET, match_opcode, 0 },
 
 /* Supervisor instructions */
 {"csrr",      "I",   "d,E",  MATCH_CSRRS, MASK_CSRRS | MASK_RS1, match_opcode, INSN_ALIAS },

@@ -452,6 +452,12 @@
 #define MASK_C_LDSP  0xe003
 #define MATCH_C_SDSP 0xe002
 #define MASK_C_SDSP  0xe003
+#define MATCH_C_PUSH 0x8008
+#define MASK_C_PUSH  0xe00f
+#define MATCH_C_POP 0x8000
+#define MASK_C_POP  0xe00f
+#define MATCH_C_POPRET 0x8004
+#define MASK_C_POPRET  0xe00f
 #define MATCH_CUSTOM0 0xb
 #define MASK_CUSTOM0  0x707f
 #define MATCH_CUSTOM0_RS1 0x200b
