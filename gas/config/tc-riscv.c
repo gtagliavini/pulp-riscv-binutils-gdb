@@ -759,7 +759,7 @@ get_push_pop_rcount (char **s)
         {
           char *rcount_str = (char *) malloc ((n + 1) * sizeof (char));
 	  gas_assert (rcount_str);
-	  gas_assert (0 == strncpy (rcount_str, s_save, n));
+	  gas_assert (strncpy (rcount_str, s_save, n));
           rcount_str[n] = '\0';
           (*s)++;
           if (strchr (rcount_str, 'x') != NULL)
