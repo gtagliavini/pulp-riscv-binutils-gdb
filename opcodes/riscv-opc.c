@@ -2823,6 +2823,27 @@ const struct riscv_opcode riscv_opcodes[] =
 {"pv.mlsdotsp.c.2",   "Xpulpnn", "d,s,t", MATCH_V_OP_SDOTUSP_2|MATCH_V_OP_ML_C_VV,  MASK_V_OP,  match_opcode, 0},
 {"pv.mlsdotsp.c.3",   "Xpulpnn", "d,s,t", MATCH_V_OP_SDOTUSP_3|MATCH_V_OP_ML_C_VV,  MASK_V_OP,  match_opcode, 0},
 
+
+/* Xpulpnn extensions v3 */
+/***********************************************************************************************************************/
+/**************************************     Xpulpnn  MAC&LOADv3      ***************************************************/
+{"pv.smlsdotup.h",		"Xpulpnn", "d,s,bi",	MATCH_V_OP_MLSDOTUP | MATCH_V_OP_ML_H_VV,	 MASK_V_OP,	 match_opcode,	0},
+{"pv.smlsdotup.b",		"Xpulpnn", "d,s,bi",	MATCH_V_OP_MLSDOTUP | MATCH_V_OP_ML_B_VV,	 MASK_V_OP,	 match_opcode,	0},
+{"pv.smlsdotup.n",		"Xpulpnn", "d,s,bi",	MATCH_V_OP_MLSDOTUP | MATCH_V_OP_ML_N_VV,	 MASK_V_OP,	 match_opcode,	0},
+{"pv.smlsdotup.c",    "Xpulpnn", "d,s,bi",  MATCH_V_OP_MLSDOTUP | MATCH_V_OP_ML_C_VV,  MASK_V_OP,  match_opcode,  0},
+{"pv.smlsdotusp.h",		"Xpulpnn", "d,s,bi",	MATCH_V_OP_MLSDOTUSP| MATCH_V_OP_ML_H_VV,	 MASK_V_OP,	 match_opcode,	0},
+{"pv.smlsdotusp.b",		"Xpulpnn", "d,s,bi",	MATCH_V_OP_MLSDOTUSP| MATCH_V_OP_ML_B_VV,	 MASK_V_OP,	 match_opcode,	0},
+{"pv.smlsdotusp.n",		"Xpulpnn", "d,s,bi",	MATCH_V_OP_MLSDOTUSP| MATCH_V_OP_ML_N_VV,	 MASK_V_OP,	 match_opcode,	0},
+{"pv.smlsdotusp.c",   "Xpulpnn", "d,s,bi",  MATCH_V_OP_MLSDOTUSP| MATCH_V_OP_ML_C_VV,  MASK_V_OP,  match_opcode,  0},
+{"pv.smlsdotsup.h",		"Xpulpnn", "d,s,bi",	MATCH_V_OP_MLSDOTSUP| MATCH_V_OP_ML_H_VV,	 MASK_V_OP,	 match_opcode,	0},
+{"pv.smlsdotsup.b",		"Xpulpnn", "d,s,bi",	MATCH_V_OP_MLSDOTSUP| MATCH_V_OP_ML_B_VV,	 MASK_V_OP,	 match_opcode,	0},
+{"pv.smlsdotsup.n",		"Xpulpnn", "d,s,bi",	MATCH_V_OP_MLSDOTSUP| MATCH_V_OP_ML_N_VV,	 MASK_V_OP,	 match_opcode,	0},
+{"pv.smlsdotsup.c",   "Xpulpnn", "d,s,bi",  MATCH_V_OP_MLSDOTSUP| MATCH_V_OP_ML_C_VV,  MASK_V_OP,  match_opcode,  0},
+{"pv.smlsdotsp.h",		"Xpulpnn", "d,s,bi",	MATCH_V_OP_MLSDOTSP | MATCH_V_OP_ML_H_VV,	 MASK_V_OP,	 match_opcode,	0},
+{"pv.smlsdotsp.b",		"Xpulpnn", "d,s,bi",	MATCH_V_OP_MLSDOTSP | MATCH_V_OP_ML_B_VV,	 MASK_V_OP,	 match_opcode,	0},
+{"pv.smlsdotsp.n",		"Xpulpnn", "d,s,bi",	MATCH_V_OP_MLSDOTSP | MATCH_V_OP_ML_N_VV,	 MASK_V_OP,	 match_opcode,	0},
+{"pv.smlsdotsp.c",    "Xpulpnn", "d,s,bi",  MATCH_V_OP_MLSDOTSP | MATCH_V_OP_ML_C_VV,  MASK_V_OP,  match_opcode,  0},
+
 /***********************************************************************************************************************/
 /**************************************             Gap9             ***************************************************/
 /***********************************************************************************************************************/
